@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Remind Me</string>
+
+    <string name="title_activity_add_reminder">Add Reminder</string>
+    <string name="reminder_title_mandatory">Reminder Title</string>
+    <string name="details_optional">Reminder Details</string>
+    <string name="date_and_time">Date and Time</string>
+    <string name="title">Title</string>
+    <string name="title_activity_history">History</string>
+    <string name="history">History</string>
+    <string name="massage">Massage...................................................................................</string>
+    <string name="delete_all">Delete All</string>
+
+
+</resources>

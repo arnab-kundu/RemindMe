@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main_ll"
+    android:padding="@dimen/main_activity_margin"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/layout_background"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.arnab.remindme.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/srl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/listView" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
+</LinearLayout>
