@@ -10,6 +10,6 @@
     <string name="history">History</string>
     <string name="massage">Massage...................................................................................</string>
     <string name="delete_all">Delete All</string>
-
+    <string name="noti_channel_second">Secondary Channel</string>
 
 </resources>

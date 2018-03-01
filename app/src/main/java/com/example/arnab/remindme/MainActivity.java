@@ -28,14 +28,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     //region GlobalVariables
     ListView listView;
-    SimpleCursorAdapter dataAdapter;
+    //SimpleCursorAdapter dataAdapter;
     ReminderDatabase rdb;
     SQLiteDatabase db;
     String thisReminder;
@@ -68,9 +67,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
 
         this.overridePendingTransition(R.anim.fade_in, R.anim.zoom_out);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        listView = (ListView) findViewById(R.id.listView);
+        listView = findViewById(R.id.listView);
 
 
         blink = AnimationUtils.loadAnimation(this, R.anim.blink);
@@ -79,26 +78,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fade = AnimationUtils.loadAnimation(this, R.anim.fade);
         bounce = AnimationUtils.loadAnimation(this, R.anim.bounce);
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coo);
-        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-        linearLayout = (LinearLayout) findViewById(main_ll);
+        coordinatorLayout = findViewById(R.id.coo);
+        appBarLayout = findViewById(R.id.appbar);
+        linearLayout = findViewById(main_ll);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl);
+        swipeRefreshLayout = findViewById(R.id.srl);
         assert swipeRefreshLayout != null;
         swipeRefreshLayout.setOnRefreshListener(this);
         sharedPreferences = getSharedPreferences("RemindMe", MODE_PRIVATE);
         if (sharedPreferences != null)
-            backgroundColor = sharedPreferences.getInt("backgroundColor", Color.BLUE);
+            backgroundColor = sharedPreferences.getInt("backgroundColor", Color.BLACK);
 
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.main_ll);
+        LinearLayout linearLayout = findViewById(R.id.main_ll);
         gradientDrawable = (GradientDrawable) ContextCompat.getDrawable(this, R.drawable.layout_background);
-        gradientDrawable.setColorFilter(backgroundColor, PorterDuff.Mode.ADD);
+        if (gradientDrawable != null)
+            gradientDrawable.setColorFilter(backgroundColor, PorterDuff.Mode.ADD);
         linearLayout.setBackground(gradientDrawable);
 
         rdb = new ReminderDatabase(this);
         db = rdb.getWritableDatabase();
 
-       // RemindMeApplication remindMeApplication = RemindMeApplication.getInstance();
+        // RemindMeApplication remindMeApplication = RemindMeApplication.getInstance();
 
         if (!isMyServiceRunning(ReminderService.class)) {
             Log.i("msg", "service starting");
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             startService(start_service_intent);
         }
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     //for getting all data form database
-    public Cursor fetchAllDataFromDatabase() {
+    /*public Cursor fetchAllDataFromDatabase() {
         Cursor cursor = null;
         try {
             rdb = new ReminderDatabase(this);
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             Log.e("msg", "" + e);
         }
         return cursor;
-    }
+    }*/
 
     //region for adding all data to a custom listView using SimpleCursorAdapter Old method not using now....
    /* protected void displayCustomListView() {
@@ -210,13 +210,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         Log.i("msg", "checking");
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         int count = 1;
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            Log.i("msg", "checked number of services " + count++);
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i("msg", "true");
-                return true;
+        if (manager != null)
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                Log.i("msg", "checked number of services " + count++);
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    Log.i("msg", "true");
+                    return true;
+                }
             }
-        }
         return false;
     }
 
@@ -231,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     //24hrs to 12hrs time conversion
     public static String hrs24ToHrs12Format(String dnt) {
         Log.d("msg", "" + dnt);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault());
         Date date = null;
         try {
             date = sdf.parse(dnt);
@@ -241,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         assert date != null;
         long timeInMilliSeconds = date.getTime();
-        SimpleDateFormat sdf12 = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
+        SimpleDateFormat sdf12 = new SimpleDateFormat("yyyy/MM/dd hh:mm a", Locale.getDefault());
         Date date12 = new Date(timeInMilliSeconds);
         return sdf12.format(date12);
     }

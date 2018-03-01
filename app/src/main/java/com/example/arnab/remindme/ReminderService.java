@@ -2,6 +2,7 @@ package com.example.arnab.remindme;
 
 import android.app.ActivityManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -10,6 +11,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,11 +23,12 @@ import java.util.Locale;
 
 public class ReminderService extends Service {
 
-    String dbtitle,dbmassage,dbdateandtime;
-    public static int notification_counter = 0;
+    String dbtitle, dbmassage, dbdateandtime;
+    public static int notification_counter = 1200;
     Thread t;
     static NotificationManager nm;
     ContentValues cv;
+    public static final String SECONDARY_CHANNEL = "second";
 
     public ReminderService() {
     }
@@ -50,7 +53,7 @@ public class ReminderService extends Service {
                                 try {
                                     //String query = "select * from " + ReminderDatabase.TABLENAME + " where " + ReminderDatabase.DATE_TIME + " = \"" + cd.trim()+"\"";
                                     //Cursor cursor = db.rawQuery(query, null);
-                                    String column[] = {ReminderDatabase.TITLE, ReminderDatabase.MASSAGE,ReminderDatabase.DATE_TIME};
+                                    String column[] = {ReminderDatabase.TITLE, ReminderDatabase.MASSAGE, ReminderDatabase.DATE_TIME};
                                     String where = ReminderDatabase.DATE_TIME + "=?";
                                     String input[] = {cd};
                                     Cursor cursor = db.query(ReminderDatabase.TABLENAME, column, where, input, null, null, null);
@@ -65,18 +68,26 @@ public class ReminderService extends Service {
                                         long v[] = {0, 100, 200, 300};
                                         //Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                                         Uri customNotificationSound = Uri.parse("android.resource://" + getPackageName() + "/raw/carlock");
-                                        Notification n = new Notification.Builder(getApplicationContext())
-                                                .setSmallIcon(R.mipmap.ic_launcher)
-                                                .setTicker(dbtitle)
-                                                .setContentTitle(dbtitle)
-                                                .setContentText(dbmassage)
-                                                .setContentIntent(pi)
-                                                .setVibrate(v)
-                                                .setSound(customNotificationSound)
-                                                .setAutoCancel(true)
-                                                .build();
+                                        Notification.Builder n = new Notification.Builder(getApplicationContext());
+                                        n.setSmallIcon(R.mipmap.ic_launcher);
+                                        n.setTicker(dbtitle);
+                                        n.setContentTitle(dbtitle);
+                                        n.setContentText(dbmassage);
+                                        n.setContentIntent(pi);
+                                        n.setVibrate(v);
+                                        n.setSound(customNotificationSound);
+                                        n.setAutoCancel(true);
+                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+                                            n.setChannelId(SECONDARY_CHANNEL);
+                                        //n.build();
                                         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                                        nm.notify(notification_counter++, n);
+                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                            NotificationChannel notificationChannel = new NotificationChannel(SECONDARY_CHANNEL, getString(R.string.noti_channel_second), NotificationManager.IMPORTANCE_HIGH);
+                                            notificationChannel.setLightColor(Color.BLUE);
+                                            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                                            nm.createNotificationChannel(notificationChannel);
+                                        }
+                                        nm.notify(notification_counter++, n.build());
                                         cv = new ContentValues();
                                         cv.put(ReminderDatabase.TITLE, dbtitle);
                                         cv.put(ReminderDatabase.MASSAGE, dbmassage);
@@ -87,11 +98,11 @@ public class ReminderService extends Service {
                                         db.close();
                                         Log.i("msg", "service deleted past reminder");
 
-                                        if(isForeground("com.example.arnab.remindme")) {
-                                            Log.d("msg","ok");
-                                            
+                                        if (isForeground("com.example.arnab.remindme")) {
+                                            Log.d("msg", "ok");
 
-                                            startActivity(new Intent(getApplicationContext(),AddReminderActivity.class));
+
+                                            startActivity(new Intent(getApplicationContext(), AddReminderActivity.class));
                                         }
 
                                     }
@@ -106,7 +117,9 @@ public class ReminderService extends Service {
                 }
             }
         };
-        t = new Thread(r);
+        t = new
+
+                Thread(r);
         t.start();
         return START_STICKY;
     }
@@ -125,7 +138,7 @@ public class ReminderService extends Service {
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> runningTaskInfo = manager.getRunningTasks(1);
         ComponentName componentInfo = runningTaskInfo.get(0).topActivity;
-        Log.d("msg",componentInfo.getPackageName());
+        Log.d("msg", componentInfo.getPackageName());
         return componentInfo.getPackageName().equals(myPackage);
     }
 }

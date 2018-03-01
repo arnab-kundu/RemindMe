@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -37,7 +38,6 @@ public class AddReminderActivity extends AppCompatActivity {
 
     AutoCompleteTextView actv;
     EditText et;
-    private TextView textView;
     String reminderDateAndTime;
     ReminderDatabase rdb;
     SQLiteDatabase db;
@@ -53,31 +53,54 @@ public class AddReminderActivity extends AppCompatActivity {
     FloatingActionButton fab;
     Toolbar toolbar;
     GradientDrawable gradientDrawable;
+    private TextView textView;
+
+    public static boolean simpleDateFormatToMilliseconds(String dnt) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault());
+        Date date = null;
+        try {
+            date = sdf.parse(dnt);
+        } catch (ParseException e) {
+            Log.e("msg", "dateParsingException");
+        }
+        //Log.d("msg",""+date.getTime());
+        //Log.d("msg",""+System.currentTimeMillis());
+        //System.out.println("msg in milliseconds: " + date.getTime());
+        assert date != null;
+        return System.currentTimeMillis() > date.getTime();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_reminder);
         this.overridePendingTransition(R.anim.fade_in, R.anim.zoomout_and_drop);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         int backgroundColor = MainActivity.sharedPreferences.getInt("backgroundColor", Color.RED);
 
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.add_ll);
+        LinearLayout linearLayout = findViewById(R.id.add_ll);
         gradientDrawable = (GradientDrawable) ContextCompat.getDrawable(this, R.drawable.layout_background);
         gradientDrawable.setColorFilter(backgroundColor, PorterDuff.Mode.ADD);
         linearLayout.setBackground(gradientDrawable);
 
-        actv = (AutoCompleteTextView) findViewById(R.id.actv);
-        et = (EditText) findViewById(R.id.editText);
-        textView = (TextView) findViewById(R.id.textView2);
+        actv = findViewById(R.id.actv);
+        et = findViewById(R.id.editText);
+        textView = findViewById(R.id.textView2);
         //Toast.makeText(this, "Please avoid setting a past time.You wouldn\'t get any reminder on that case.", Toast.LENGTH_SHORT).show();
 
         shake = AnimationUtils.loadAnimation(this, R.anim.shake_horizontal);
         fade = AnimationUtils.loadAnimation(this, R.anim.zoom);
         blink = AnimationUtils.loadAnimation(this, R.anim.blink);
-        ArrayAdapter<String> aa = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        ArrayAdapter<String> aa = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
+
+        ArrayList<String> strings = new ArrayList<>();
+
+        for (String item : items) {
+            strings.add(item);
+        }
+        final BurtuAdapteris fAdapter = new BurtuAdapteris(this, android.R.layout.simple_dropdown_item_1line, strings);
         actv.setAdapter(aa);
         actv.setThreshold(1);
 
@@ -93,7 +116,7 @@ public class AddReminderActivity extends AppCompatActivity {
                 setDateTime();
             }
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,7 +249,7 @@ public class AddReminderActivity extends AppCompatActivity {
                 tpd.show();
             }
         }, presentYear, presentMonth, presentDate);
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         datePickerDialog.setCancelable(false);
         datePickerDialog.show();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault());
@@ -236,20 +259,5 @@ public class AddReminderActivity extends AppCompatActivity {
     //for change date and time once selected by clicking date & time TextView
     public void setDateTimeAgain(View view) {
         setDateTime();
-    }
-
-    public static boolean simpleDateFormatToMilliseconds(String dnt) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault());
-        Date date = null;
-        try {
-            date = sdf.parse(dnt);
-        } catch (ParseException e) {
-            Log.e("msg", "dateParsingException");
-        }
-        //Log.d("msg",""+date.getTime());
-        //Log.d("msg",""+System.currentTimeMillis());
-        //System.out.println("msg in milliseconds: " + date.getTime());
-        assert date != null;
-        return System.currentTimeMillis() > date.getTime();
     }
 }

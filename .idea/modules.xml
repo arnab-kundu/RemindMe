@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/RemindMe.iml" filepath="$PROJECT_DIR$/RemindMe.iml" />
+      <module fileurl="file://C:\Users\akundu\AndroidStudioProjects\RemindMe\RemindMe.iml" filepath="C:\Users\akundu\AndroidStudioProjects\RemindMe\RemindMe.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/yuku.ambilwarna/yuku.ambilwarna.iml" filepath="$PROJECT_DIR$/yuku.ambilwarna/yuku.ambilwarna.iml" />
     </modules>

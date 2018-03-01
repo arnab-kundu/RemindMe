@@ -1,11 +1,13 @@
 package com.example.arnab.remindme;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +29,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
 
@@ -38,16 +41,19 @@ public class HistoryActivity extends AppCompatActivity {
     LinearLayout linearLayout;
     GradientDrawable gradientDrawable;
 
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        listView = (ListView) findViewById(R.id.history_listView);
-        linearLayout = (LinearLayout) findViewById(R.id.history_ll);
+        listView = findViewById(R.id.history_listView);
+        linearLayout = findViewById(R.id.history_ll);
+        sharedPreferences = getSharedPreferences("RemindMe",MODE_PRIVATE);
 
-        int backgroundColor = MainActivity.sharedPreferences.getInt("backgroundColor", Color.RED);
+        int backgroundColor = sharedPreferences.getInt("backgroundColor", Color.RED);
         gradientDrawable = (GradientDrawable) ContextCompat.getDrawable(this, R.drawable.layout_background);
         gradientDrawable.setColorFilter(backgroundColor, PorterDuff.Mode.ADD);
         linearLayout.setBackground(gradientDrawable);
@@ -154,7 +160,7 @@ public class HistoryActivity extends AppCompatActivity {
     //24hrs to 12hrs time conversion
     public static String hrs24ToHrs12Format(String dnt) {
         Log.d("msg", "" + dnt);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm",Locale.getDefault());
         Date date = null;
         try {
             date = sdf.parse(dnt);
@@ -164,7 +170,7 @@ public class HistoryActivity extends AppCompatActivity {
         }
         assert date != null;
         long timeInMilliSeconds = date.getTime();
-        SimpleDateFormat sdf12 = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
+        SimpleDateFormat sdf12 = new SimpleDateFormat("yyyy/MM/dd hh:mm a", Locale.getDefault());
         Date date12 = new Date(timeInMilliSeconds);
         return sdf12.format(date12);
     }

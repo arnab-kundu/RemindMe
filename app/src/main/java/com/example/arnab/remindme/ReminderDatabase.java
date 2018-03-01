@@ -17,10 +17,9 @@ public class ReminderDatabase extends SQLiteOpenHelper {
     public static final String TITLE = "title";
     public static final String MASSAGE = "massage";
     public static final String DATE_TIME = "datetime";
-
     public static final String HISTORY_TABLE = "history";
 
-    Context ctx;
+    private Context ctx;
 
     public ReminderDatabase(Context context) {
         super(context, DBNAME, null, VERSION);
