@@ -100,7 +100,7 @@ public class AddReminderActivity extends AppCompatActivity {
         for (String item : items) {
             strings.add(item);
         }
-        final BurtuAdapteris fAdapter = new BurtuAdapteris(this, android.R.layout.simple_dropdown_item_1line, strings);
+        //final BurtuAdapteris fAdapter = new BurtuAdapteris(this, android.R.layout.simple_dropdown_item_1line, strings);
         actv.setAdapter(aa);
         actv.setThreshold(1);
 
