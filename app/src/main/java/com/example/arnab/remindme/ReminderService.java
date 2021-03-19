@@ -6,14 +6,20 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
@@ -77,11 +83,11 @@ public class ReminderService extends Service {
                                         n.setVibrate(v);
                                         n.setSound(customNotificationSound);
                                         n.setAutoCancel(true);
-                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                                             n.setChannelId(SECONDARY_CHANNEL);
                                         //n.build();
                                         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             NotificationChannel notificationChannel = new NotificationChannel(SECONDARY_CHANNEL, getString(R.string.noti_channel_second), NotificationManager.IMPORTANCE_HIGH);
                                             notificationChannel.setLightColor(Color.BLUE);
                                             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
@@ -121,6 +127,9 @@ public class ReminderService extends Service {
 
                 Thread(r);
         t.start();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel("123123","Reminder");
+        }
         return START_STICKY;
     }
 
@@ -128,6 +137,48 @@ public class ReminderService extends Service {
     public IBinder onBind(Intent intent) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private void createNotificationChannel(String channelId, String channelName) {
+        Intent resultIntent = new Intent(this, MainActivity.class);
+// Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert manager != null;
+        manager.createNotificationChannel(chan);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
+        Notification notification = notificationBuilder.setOngoing(true)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("App is running in background")
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setContentIntent(resultPendingIntent) //intent
+                .build();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(1, notificationBuilder.build());
+        startForeground(1, notification);
+    }
+
+
+    private void stopForegroundService() {
+        Log.d("msg", "Stop foreground service.");
+
+        // Stop foreground service and remove the notification.
+        stopForeground(true);
+
+        // Stop the foreground service.
+        stopSelf();
+    }
+
 
     @Override
     public void onDestroy() {
