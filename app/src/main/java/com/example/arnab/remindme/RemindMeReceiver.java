@@ -3,6 +3,9 @@ package com.example.arnab.remindme;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+
+import androidx.core.content.ContextCompat;
 
 public class RemindMeReceiver extends BroadcastReceiver {
 
@@ -12,6 +15,10 @@ public class RemindMeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent startServiceIntent = new Intent(context, ReminderService.class);
-        context.startService(startServiceIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(startServiceIntent);
+        } else {
+            context.startService(startServiceIntent);
+        }
     }
 }
